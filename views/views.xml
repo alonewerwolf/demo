@@ -1,0 +1,113 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+      <record id="demo_view_form" model="ir.ui.view">
+          <field name="name">demo.demo.form</field>
+          <field name="model">demo.demo</field>
+          <field name="arch" type="xml">
+              <form string="Demo" edit="0">
+                  <sheet>
+                      <group>
+                          <field name="name"/>
+                          <field name="user_id"/>
+                          <field name="done_date"/>
+                          <field name="partner_id"/>
+                          <field name="lead_id"/>
+<!--                          Didn't find widget state, maybe miss in odoo14-->
+                          <field name="state"/>
+                      </group>
+                  </sheet>
+                  <div class="oe_chatter">
+                      <field name="message_follower_ids" widget="mail_followers"/>
+                      <field name="activity_ids" widget="mail_activity"/>
+                      <field name="message_ids" widget="mail_thread"/>
+                  </div>
+              </form>
+          </field>
+      </record>
+
+    <record model="ir.ui.view" id="view_demo_demo_kanban">
+      <field name="name">demo.demo.kanban</field>
+      <field name="model">demo.demo</field>
+      <field name="arch" type="xml">
+        <kanban class="o_kanban_mobile">
+                    <templates>
+                        <field name="name"/>
+                        <field name="user_id"/>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div><strong class="o_kanban_record_title"><t t-esc="name"/></strong></div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+      <record id="view_demo_demo_search" model="ir.ui.view">
+          <field name="name">demo.demo.search</field>
+          <field name="model">demo.demo</field>
+          <field name="arch" type="xml">
+              <search string="Search name">
+                  <!--                  What means three at once search?-->
+                  <field name="name" filter_domain="['|', ('user_id', 'like', self), ('lead_id', 'like', self)]"/>
+                  <filter string="My demos" name="demos"/>
+              </search>
+          </field>
+      </record>
+
+    <record id="demo_demo_list_view" model="ir.ui.view">
+        <field name="name">demo.demo.list.view</field>
+        <field name="model">demo.demo</field>
+        <field name="arch" type="xml">
+            <tree string="Demo" >
+                <field name="name"/>
+                <field name="lead_id"/>
+                <field name="user_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="crm_lead_view_form_inherit" model="ir.ui.view">
+            <field name="name">crm.lead.form.inherit</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="create_demo" type="object"  class="oe_highlight" string="New demo" context="{'default_user_id': user_id ,'default_partner_id': partner_id, 'default_lead_id': id}"/>
+            </xpath>
+            </field>
+    </record>
+
+      <record id="crm_tree_view_inherit" model="ir.ui.view">
+          <field name="name">crm.lead.tree.inherit</field>
+          <field name="model">crm.lead</field>
+          <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+          <field name="arch" type="xml">
+              <button name="action_schedule_meeting" position="after">
+                    <button class="oe_stat_button" type="object"
+                          name="action_view_demo" icon="fa-pencil-square-o"
+                          domain="[('demo_ids.lead_id', '=', self.id)]">
+                      <field name="demo_count" widget="statinfo" string="Demo"/>
+                  </button>
+                </button>
+          </field>
+      </record>
+
+    <!-- actions opening views on models -->
+
+      <record model="ir.actions.act_window" id="demo.action_window">
+          <field name="name">Demo</field>
+          <field name="res_model">demo.demo</field>
+          <field name="view_mode">tree,kanban,form</field>
+          <field name="context">{'search_default_demos': 1}</field>
+      </record>
+
+
+
+    <!-- Top menu item -->
+    <menuitem name="Demo" id="demo.menu_root" groups="demo_group_manager"/>
+
+
+  </data>
+</odoo>
